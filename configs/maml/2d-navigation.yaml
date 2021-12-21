@@ -1,0 +1,94 @@
+# General
+# -------
+# Name of the environment.
+env-name: "2DNavigation-v0"
+
+# Additional parameters for the environment (eg. bound for task sampling).
+env-kwargs:
+  low: -0.5
+  high: 0.5
+
+# Discount factor gamma.
+gamma: 0.99
+
+# Discount factor lambda used in "Generalized Advantage Estimation" (GAE).
+gae-lambda: 1.0
+
+# If "true", then the first order approximation of MAML is applied.
+first-order: false
+
+# Policy network
+# --------------
+# Number of hidden units in each layer.
+hidden-sizes: [64, 64]
+
+# Non-linear activation function to apply after each hidden layer.
+nonlinearity: "tanh"
+
+# Task-specific
+# -------------
+# Number of trajectories to sample for each task.
+fast-batch-size: 20
+
+# Number of gradient steps in the inner loop / fast adaptation.
+num-steps: 2
+
+# Step size for each gradient step in the inner loop / fast adaptation.
+fast-lr: 0.01
+
+# Optimization
+# ------------
+# Number of outer-loop updates (ie. number of batches of tasks).
+num-batches: 500
+
+# Number of tasks in each batch of tasks.
+meta-batch-size: 20
+
+# TRPO-specific
+# -------------
+# Size of the trust-region.
+max-kl: 1.0e-2
+
+# Number of iterations of Conjugate Gradient.
+cg-iters: 10
+
+# Value of the damping in Conjugate Gradient.
+cg-damping: 1.0e-5
+
+# Maximum number of steps in the line search.
+ls-max-steps: 15
+
+# Ratio to use for backtracking during the line search.
+ls-backtrack-ratio: 0.8
+
+#--------------------------------------------------------------------
+# Value of Adv in learner train
+Adv: -0.1803278625011444
+
+# Number of attacker updates (ie. number of batches of tasks).
+attacker-num-batches: 1
+
+# Number of whole-batch updates.
+whole-batch-number: 500
+
+# Optimizer parameters for each gradient step in the attacker adaptation.
+attacker-lr: 0.1
+attacker-momentum: 0
+attacker-dampening: 0
+attacker-weight_decay: 1
+
+# Optimizer parameters for early stop.
+restricted-distance: 0.0005
+stop-threshold: 10
+
+# Optimizer parameters for clip.
+clip_value: 30.0
+
+# Attacker learning rate decay
+lr_decay: 30
+
+# Outer Loop setting
+outer_loop: false
+
+# Step size for each gradient step in the attacker adaptation of one step training.
+whole-batch-number-one-step: 25000
