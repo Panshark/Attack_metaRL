@@ -1,4 +1,4 @@
-## Model-Agnostic Meta-Learning Pytorch Implementation
+## Attack on Meta-Learning Pytorch Implementation
 
 Original implementation by Tristan Deleu.
 
@@ -38,4 +38,3 @@ Detector:
 python detection_new.py --config configs/maml/2d-navigation.yaml --output-folder 2d-navigation_detection --seed 1 --num-workers 8 --use-cuda
 ```
 
-# Attack_metaRL
