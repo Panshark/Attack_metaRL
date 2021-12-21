@@ -1,6 +1,6 @@
 ## Attack on Meta-Learning Pytorch Implementation
 
-Original implementation by Tristan Deleu.
+Original implementation by Tristan Deleu https://github.com/tristandeleu/pytorch-maml-rl.
 
 Usage:
 Train:
