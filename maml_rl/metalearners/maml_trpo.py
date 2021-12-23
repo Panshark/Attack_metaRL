@@ -195,7 +195,7 @@ class MAMLTRPO(GradientBasedMetaLearner):
                                  self.policy.parameters())
 
             losses, kls, _, new_losses, pure_losses = self._async_gather([
-                self.surrogate_loss(train, valid, old_pi=old_pi, Adv=Adv)
+                self.surrogate_loss(train, valid, old_pi=old_pi, Adv=Adv, Outer_loop=Outer_loop)
                 for (train, valid, old_pi)
                 in zip(zip(*train_futures), valid_futures, old_pis)])
 
