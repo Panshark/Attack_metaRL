@@ -90,8 +90,6 @@ def main(args):
                                 Outer_loop=config['outer_loop'])
 
         train_episodes, valid_episodes = sampler.sample_wait(futures)
-        num_iterations += sum(sum(episode.lengths) for episode in train_episodes[0])
-        num_iterations += sum(sum(episode.lengths) for episode in valid_episodes)
 
         # Save policy
         if args.output_folder is not None:
