@@ -12,7 +12,7 @@ Original implementation by [Tristan Deleu](https://github.com/tristandeleu/pytor
 - [Background](#background)
 - [Install](#install)
 - [Usage](#usage)
-- [Related Efforts](#related-efforts)
+- [References](#references)
 - [Maintainers](#maintainers)
 - [Contributing](#contributing)
 	- [Contributors](#contributors)
