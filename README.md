@@ -94,10 +94,31 @@ python train_attacker_bi_modified.py --config configs/maml/2d-navigation.yaml --
 python train_one_step_attacker_modified.py --config configs/maml/2d-navigation.yaml --output-folder 2d_navigation_tt --seed 1 --num-workers 8 --use-cuda
 ```
 
-## Related Efforts
+## References
+This project is, for the most part, a reproduction of the original implementation [cbfinn/maml_rl](https://github.com/cbfinn/maml_rl/) in Pytorch. These experiments are based on the paper
+> Chelsea Finn, Pieter Abbeel, and Sergey Levine. Model-Agnostic Meta-Learning for Fast Adaptation of Deep
+Networks. _International Conference on Machine Learning (ICML)_, 2017 [[ArXiv](https://arxiv.org/abs/1703.03400)]
 
-- [Art of Readme](https://github.com/noffle/art-of-readme) - 💌 Learn the art of writing quality READMEs.
-- [open-source-template](https://github.com/davidbgk/open-source-template/) - A README template to encourage open-source contributions.
+If you want to cite this paper
+```
+@article{finn17maml,
+  author    = {Chelsea Finn and Pieter Abbeel and Sergey Levine},
+  title     = {{Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks}},
+  journal   = {International Conference on Machine Learning (ICML)},
+  year      = {2017},
+  url       = {http://arxiv.org/abs/1703.03400}
+}
+```
+
+If you want to cite this implementation:
+```
+@misc{deleu2018mamlrl,
+  author = {Tristan Deleu},
+  title  = {{Model-Agnostic Meta-Learning for Reinforcement Learning in PyTorch}},
+  note   = {Available at: https://github.com/tristandeleu/pytorch-maml-rl},
+  year   = {2018}
+}
+```
 
 ## Maintainers
 
