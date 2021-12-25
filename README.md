@@ -12,12 +12,10 @@ Original implementation by Tristan Deleu https://github.com/tristandeleu/pytorch
 - [Background](#background)
 - [Install](#install)
 - [Usage](#usage)
-	- [Generator](#generator)
-- [Badge](#badge)
-- [Example Readmes](#example-readmes)
 - [Related Efforts](#related-efforts)
 - [Maintainers](#maintainers)
 - [Contributing](#contributing)
+	- [Contributors](#contributors)
 - [License](#license)
 
 ## Background
@@ -106,17 +104,7 @@ Feel free to dive in! [Open an issue](https://github.com/Panshark/Attack_metaRL/
 
 Standard Readme follows the [Contributor Covenant](http://contributor-covenant.org/version/1/3/0/) Code of Conduct.
 
-### Contributors
-
-This project exists thanks to all the people who contribute. 
-<a href="https://github.com/Panshark/Attack_metaRL/network/dependencies"><img src="https://opencollective.com/Attack_metaRL/contributors.svg?width=890&button=false" /></a>
-
-
-## License
-
-[MIT](LICENSE) © Richard Littauer
-
-## Contributors ✨
+### Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
@@ -136,3 +124,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+## License
+
+[MIT](LICENSE) © Tristan Deleu
