@@ -5,7 +5,7 @@
 
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
-Original implementation by [Tristan Deleu](https://github.com/tristandeleu/pytorch-maml-rl).
+Original implementation by [Tristan Deleu](https://github.com/tristandeleu/pytorch-maml-rl) based on [Chelsea Finn et al.](https://arxiv.org/abs/1703.03400) in Pytorch.
 
 ## Table of Contents
 
