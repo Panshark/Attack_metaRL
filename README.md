@@ -64,28 +64,33 @@ pip install -r requirements.txt
 
 ## Usage
 
+### Learner Training
+
 ```sh
-#Train:
 python train.py --config configs/maml/2d-navigation.yaml --output-folder 2d_navigation --seed 1 --num-workers 8 --use-cuda
 ```
 
+### Learner Testing
+
 ```sh
-#Test:
 python test.py --config 2d_navigation/config.json --policy 2d_navigation/policy.th --output 2d_navigation/results.npz --num-batches 10 --meta-batch-size 20 --num-workers 12 --use-cuda
 ```
 
+### Learner Result
+
 ```sh
-#Draw:
 python draw.py --resultpath 2d_navigation --output_folder 2d_navigation/returns --num-batches 10 --num-traj 20 
 ```
 
+### Bi-level Attacker Training
+
 ```sh
-#Bi-level Attack:
 python train_attacker_bi_modified.py --config configs/maml/2d-navigation.yaml --output-folder 2d_navigation_bi --seed 1 --num-workers 8 --use-cuda
 ```
 
+### Two-timescale Attacker Training
+
 ```sh
-#Two-timescale Attack:
 python train_one_step_attacker_modified.py --config configs/maml/2d-navigation.yaml --output-folder 2d_navigation_tt --seed 1 --num-workers 8 --use-cuda
 ```
 
