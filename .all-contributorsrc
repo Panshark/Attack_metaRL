@@ -12,7 +12,14 @@
       "profile": "https://github.com/Panshark",
       "contributions": [
         "code",
-        "data"
+        "data",
+        "doc",
+        "ideas",
+        "maintenance",
+        "projectManagement",
+        "question",
+        "review",
+        "design"
       ]
     }
   ],
