@@ -21,6 +21,20 @@
         "review",
         "design"
       ]
+    },
+    {
+      "login": "TaoLi-NYU",
+      "name": "Tao Li",
+      "avatar_url": "https://avatars.githubusercontent.com/u/46550706?v=4",
+      "profile": "https://engineering.nyu.edu/student/tao-li-0",
+      "contributions": [
+        "design",
+        "eventOrganizing",
+        "ideas",
+        "data",
+        "content",
+        "question"
+      ]
     }
   ],
   "contributorsPerLine": 7,
