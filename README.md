@@ -2,6 +2,8 @@
 
 Original implementation by Tristan Deleu https://github.com/tristandeleu/pytorch-maml-rl.
 
+![HalfCheetahDir](https://github.com/Panshark/Attack_metaRL/blob/main/image_source/withoutattack_cheetah.gif)
+
 Usage:
 
 Train:
