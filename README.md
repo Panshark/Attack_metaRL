@@ -47,7 +47,7 @@ pip install -r requirements.txt
 #### Requirements
  - Python 3.8 or above
  - PyTorch 1.9.1
- - mujoco 200
+ - MuJoCo 200
  - mujoco-py 2.0.2.13
 
 ## Usage
