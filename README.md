@@ -23,12 +23,12 @@ Original implementation by [Tristan Deleu](https://github.com/tristandeleu/pytor
 ### 2d-navigation
 2d-navigation without attack             |  2d-navigation with attack
 :-------------------------:|:-------------------------:
-<img width="450" height="338" src="https://github.com/Panshark/Attack_metaRL/blob/main/image_source/withoutattack_2d.gif"/>  |  <img width="450" height="338" src="https://github.com/Panshark/Attack_metaRL/blob/main/image_source/attack_2d.gif"/>
+<img width="420" height="315" src="https://github.com/Panshark/Attack_metaRL/blob/main/image_source/withoutattack_2d.gif"/>  |  <img width="420" height="315" src="https://github.com/Panshark/Attack_metaRL/blob/main/image_source/attack_2d.gif"/>
 
 ### Halfcheetah-vel
 Halfcheetah-vel without attack             |  Halfcheetah-vel with attack
 :-------------------------:|:-------------------------:
-<img width="450" height="450" src="https://github.com/Panshark/Attack_metaRL/blob/main/image_source/withoutattack_cheetah.gif"/>  |  <img width="450" height="450" src="https://github.com/Panshark/Attack_metaRL/blob/main/image_source/attack_cheetah.gif"/>
+<img width="420" height="420" src="https://github.com/Panshark/Attack_metaRL/blob/main/image_source/withoutattack_cheetah.gif"/>  |  <img width="420" height="420" src="https://github.com/Panshark/Attack_metaRL/blob/main/image_source/attack_cheetah.gif"/>
 
 Meta learning, as a learning how to learn method, has become the focus of researchers in recent years because of its great prospect in the field of artificial intelligence. During the meta training, the meta learner can develop a common learning strategy, such as the learning experience memory modules or a fast adaptation initial value, for not only the computer vision tasks but also the reinforcement learning tasks. Despite its approvingly efficient performance, meta learning is under the suspicion of security. The dependability and robustness of meta learning are doubtful, especially in the reinforcement learning area when given an extremely complex task environment. Even though meta reinforcement learning has not been extensively applied, it would be too late to consider the potential threat when attacks occur. Therefore, in our paper, we create an adversarial attacking method on the sampling process of meta reinforcement learning.
 
