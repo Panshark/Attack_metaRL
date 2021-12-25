@@ -70,8 +70,6 @@ def main(args):
     Adv=global_tensor_val.get_value('Adv')
     print("Initial Adv is ", Adv)
 
-    num_iterations = 0
-
     for batch in trange(config['num-batches']):# progress bar with training process
         tasks = sampler.sample_tasks(num_tasks=config['meta-batch-size'])
         futures = sampler.sample_async(tasks,

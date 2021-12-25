@@ -36,7 +36,7 @@ fast-batch-size: 20
 num-steps: 1
 
 # Step size for each gradient step in the inner loop / fast adaptation.
-fast-lr: 0.01
+fast-lr: 0.1
 
 # Optimization
 # ------------
@@ -65,7 +65,7 @@ ls-backtrack-ratio: 0.8
 
 #--------------------------------------------------------------------
 # Value of Adv in learner train
-Adv: -0.1803278625011444
+Adv: 1.0
 
 # Number of attacker updates (ie. number of batches of tasks).
 attacker-num-batches: 1
@@ -74,7 +74,7 @@ attacker-num-batches: 1
 whole-batch-number: 500
 
 # Optimizer parameters for each gradient step in the attacker adaptation.
-attacker-lr: 0.1
+attacker-lr: 0.01
 attacker-momentum: 0
 attacker-dampening: 0
 attacker-weight_decay: 1

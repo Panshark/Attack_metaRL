@@ -72,7 +72,7 @@ attacker-num-batches: 1
 whole-batch-number: 500
 
 # Optimizer parameters for each gradient step in the attacker adaptation.
-attacker-lr: 0.1
+attacker-lr: 0.01
 attacker-momentum: 0
 attacker-dampening: 0
 attacker-weight_decay: 1

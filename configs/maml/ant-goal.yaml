@@ -64,14 +64,33 @@ ls-max-steps: 15
 ls-backtrack-ratio: 0.8
 
 #--------------------------------------------------------------------
-# Number of attacker updates (ie. number of batches of tasks).
-attacker-num-batches: 50
+# Value of Adv in learner train
+Adv: 1.0
 
 # Number of attacker updates (ie. number of batches of tasks).
-whole-batch-number: 50
+attacker-num-batches: 1
 
-# Step size for each gradient step in the attacker adaptation.
+# Number of attacker updates (ie. number of batches of tasks).
+whole-batch-number: 500
+
+# Optimizer parameters for each gradient step in the attacker adaptation.
 attacker-lr: 0.01
+attacker-momentum: 0
+attacker-dampening: 0
+attacker-weight_decay: 1
+
+# Optimizer parameters for early stop.
+restricted-distance: 0.0001
+stop-threshold: 15
+
+# Optimizer parameters for clip.
+clip_value: 50.0
+
+# Attacker learning rate decay
+lr_decay: 50
+
+# Outer Loop setting
+outer_loop: false
 
 # Step size for each gradient step in the attacker adaptation of one step training.
-whole-batch-number-one-step: 20000
+whole-batch-number-one-step: 25000
