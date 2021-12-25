@@ -83,7 +83,7 @@ python train_one_step_attacker_modified.py --config configs/maml/2d-navigation.y
 ```
 
 ## References
-This project is the coding part of 
+This project contains experiments implementation of
 > Chelsea Finn, Pieter Abbeel, and Sergey Levine. Model-Agnostic Meta-Learning for Fast Adaptation of Deep
 Networks. _International Conference on Machine Learning (ICML)_, 2017 [[ArXiv](https://arxiv.org/abs/1703.03400)]
 
