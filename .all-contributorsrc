@@ -11,6 +11,7 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/71244619?v=4",
       "profile": "https://github.com/Panshark",
       "contributions": [
+        "design",
         "code",
         "data",
         "doc",
@@ -18,8 +19,7 @@
         "maintenance",
         "projectManagement",
         "question",
-        "review",
-        "design"
+        "review"
       ]
     },
     {
