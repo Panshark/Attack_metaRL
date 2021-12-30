@@ -70,16 +70,16 @@ python test.py --config 2d_navigation/config.json --policy 2d_navigation/policy.
 python draw.py --resultpath 2d_navigation --output_folder 2d_navigation/returns --num-batches 10 --num-traj 20 
 ```
 
-### Bi-level Attacker Training
+### Intermittent Attacker Training
 
 ```sh
-python train_attacker_bi_modified.py --config configs/maml/2d-navigation.yaml --output-folder 2d_navigation_bi --seed 1 --num-workers 8 --use-cuda
+python train_intermittent.py --config configs/maml/2d-navigation.yaml --output-folder 2d_navigation_inter --seed 1 --num-workers 8 --use-cuda
 ```
 
-### Two-timescale Attacker Training
+### Persistent Attacker Training
 
 ```sh
-python train_one_step_attacker_modified.py --config configs/maml/2d-navigation.yaml --output-folder 2d_navigation_tt --seed 1 --num-workers 8 --use-cuda
+python train_persistent.py --config configs/maml/2d-navigation.yaml --output-folder 2d_navigation_pers --seed 1 --num-workers 8 --use-cuda
 ```
 
 ## References
