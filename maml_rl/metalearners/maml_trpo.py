@@ -255,9 +255,10 @@ class MAMLTRPO(GradientBasedMetaLearner):
 
         #Loss = to_numpy(old_loss).tolist()
         logs['Adv_before'] = to_numpy(Adv).tolist()
-
+        
+        Adv_loss = -old_loss
         optimizer.zero_grad()
-        old_loss.backward()
+        Adv_loss.backward()
         if clip_value!=False:
            #torch.nn.utils.clip_grad_norm_(Adv, max_norm=clip_value)
            torch.nn.utils.clip_grad_value_(Adv, clip_value=clip_value)

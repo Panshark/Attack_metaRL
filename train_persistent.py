@@ -20,7 +20,7 @@ from maml_rl.utils.reinforcement_learning import get_returns
 from maml_rl.utils import global_tensor_val
 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
 def main(args):
