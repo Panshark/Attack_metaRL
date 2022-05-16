@@ -45,6 +45,7 @@ nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
+.vscode
 
 # Translations
 *.mo
@@ -108,7 +109,10 @@ run.sh
 logs/
 saves/
 wandb/
-
+experiments4/
+experiments3/
+experiments2/
+experiments/
 # Slurm
 *.out
 
@@ -119,6 +123,7 @@ wandb/
 
 #mojoco log file
 MUJOCO_LOG.TXT
+draw_2d.py
 
 #video recording
 recording/

@@ -26,7 +26,10 @@ def value_iteration_finite_horizon(transitions, rewards, horizon=10, gamma=0.95)
 def get_returns(episodes):
     return to_numpy([episode.rewards.sum(dim=0) for episode in episodes])
 
-def reinforce_loss(policy, episodes, params=None):
+def reinforce_loss(policy, episodes, params=None, writer=None, global_episode=-1):
+    if writer != None and global_episode >= 0:
+        writer.add_scalar("reward/ep_train", sum(episodes.rewards).mean().item(), global_episode)
+        
     pi = policy(episodes.observations.view((-1, *episodes.observation_shape)),
                 params=params)
 

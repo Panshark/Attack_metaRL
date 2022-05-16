@@ -5,7 +5,7 @@ import json
 import argparse
 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
 plt.rcParams['axes.unicode_minus'] = False
 

@@ -52,8 +52,10 @@ class MAMLTRPO(GradientBasedMetaLearner):
         super(MAMLTRPO, self).__init__(policy, device=device)
         self.fast_lr = fast_lr
         self.first_order = first_order
+        self.global_episode = -1
+        self.global_episode_val = -1
 
-    async def adapt(self, train_futures, first_order=None, Adv=1):
+    async def adapt(self, train_futures, first_order=None, Adv=1, writer=None):
         if first_order is None:
             first_order = self.first_order
         # Loop over the number of steps of adaptation
@@ -62,7 +64,10 @@ class MAMLTRPO(GradientBasedMetaLearner):
             ##print(get_value('Adv'))
             inner_loss = reinforce_loss(self.policy,
                                         await futures,
-                                        params=params)
+                                        params=params,
+                                        writer=writer,
+                                        global_episode = self.global_episode)
+            self.global_episode+=1
             inner_loss= Adv * inner_loss
             ##print(Adv)
             params = self.policy.update_params(inner_loss,
@@ -87,7 +92,7 @@ class MAMLTRPO(GradientBasedMetaLearner):
             return flat_grad2_kl + damping * vector
         return _product
 
-    async def surrogate_loss(self, train_futures, valid_futures, old_pi=None, Adv=1, Outer_loop=False):
+    async def surrogate_loss(self, train_futures, valid_futures, old_pi=None, Adv=1, Outer_loop=False, writer = None):
         first_order = (old_pi is not None) or self.first_order
         params = await self.adapt(train_futures,
                                   first_order=first_order, Adv=Adv)
@@ -96,6 +101,11 @@ class MAMLTRPO(GradientBasedMetaLearner):
 
         with torch.set_grad_enabled(old_pi is None):
             valid_episodes = await valid_futures
+            
+            self.global_episode_val+=1
+            if writer != None and self.global_episode_val >= 0:
+               writer.add_scalar("reward/ep_valid", sum(valid_episodes.rewards).mean().item(), self.global_episode_val)
+              
             pi = self.policy(valid_episodes.observations, params=params)
 
             if old_pi is None:
@@ -135,6 +145,7 @@ class MAMLTRPO(GradientBasedMetaLearner):
     def step(self,
              train_futures,
              valid_futures,
+             Base = False,
              max_kl=1e-3,
              cg_iters=10,
              cg_damping=1e-2,
@@ -143,12 +154,18 @@ class MAMLTRPO(GradientBasedMetaLearner):
              Adv=1,
              Epoch=1,
              Outer_loop=False,
-             Epoch_big=0):
+             Epoch_big=0,
+             writer = None,
+             global_episode = 1,
+             global_episode_val = 0):
         num_tasks = len(train_futures[0])
         logs = {}
+        self.global_episode = global_episode
+        self.global_episode_val = global_episode_val
         
         if Epoch_big!=0:
-              logs['epoch_big'] = Epoch_big
+            logs['epoch_big'] = Epoch_big
+        self.Epoch_big = Epoch_big
         logs['epoch'] = Epoch
         logs['time'] = time.asctime( time.localtime(time.time()) )
 
@@ -159,6 +176,8 @@ class MAMLTRPO(GradientBasedMetaLearner):
 
         # logs['loss_before'] = to_numpy(old_losses)
         # logs['kl_before'] = to_numpy(old_kls)
+        global_episode = self.global_episode
+        global_episode_val = self.global_episode_val
 
         old_loss = sum(old_losses) / num_tasks
         logs['loss_before'] = to_numpy(old_loss).tolist()
@@ -208,17 +227,30 @@ class MAMLTRPO(GradientBasedMetaLearner):
                 if Outer_loop!=False:
                    logs['reinforcementloss_after_outer'] = to_numpy(sum(new_losses) / num_tasks*Adv).tolist()
                 logs['pure_loss'] = to_numpy(sum(pure_losses) / num_tasks).tolist()
+                if writer != None and Epoch_big == 0:
+                   Num=Epoch
+                else:
+                   Num=Epoch+Base*(Epoch_big-1)
+                   
+                writer.add_scalar("learner/kl", kl.item(), Num)
+                writer.add_scalar("learner/surrogate_loss", to_numpy(sum(losses) / num_tasks).tolist(), Num)
+                writer.add_scalar("learner/reinforcement_loss", to_numpy(sum(new_losses) / num_tasks).tolist(), Num)
+                writer.add_scalar("learner/pure_loss", to_numpy(sum(pure_losses) / num_tasks).tolist(), Num)
+                if Outer_loop!=False:
+                    writer.add_scalar("learner/reinforcementloss_after_outer", to_numpy(sum(new_losses) / num_tasks*Adv).tolist(), Num)
+                    
                 break
             step_size *= ls_backtrack_ratio
         else:
             vector_to_parameters(old_params, self.policy.parameters())
             
-        return logs, sum(losses) / num_tasks
+        return logs, global_episode, global_episode_val, sum(losses) / num_tasks
 
 
     def step_attacker_with_opt(self,
              train_futures,
              valid_futures,
+             Base = False,
              max_kl=1e-3,
              cg_iters=10,
              cg_damping=1e-2,
@@ -229,7 +261,8 @@ class MAMLTRPO(GradientBasedMetaLearner):
              optimizer=None,
              clip_value=False,
              Outer_loop=False,
-             Epoch_big=0):
+             Epoch_big=0,
+             writer=None):
         num_tasks = len(train_futures[0])
         logs = {}
 
@@ -256,7 +289,7 @@ class MAMLTRPO(GradientBasedMetaLearner):
         #Loss = to_numpy(old_loss).tolist()
         logs['Adv_before'] = to_numpy(Adv).tolist()
         
-        Adv_loss = -old_loss
+        Adv_loss = -new_losses
         optimizer.zero_grad()
         Adv_loss.backward()
         if clip_value!=False:
@@ -269,7 +302,14 @@ class MAMLTRPO(GradientBasedMetaLearner):
         grads = Adv.grad
         ##print("Adv is ", Adv, "lr_Adv is ", lr_Adv, "grads is ", grads)
         logs['grads'] = grads.item()
-        
+        if writer != None and Epoch_big == 0:
+            Num=Epoch
+        else:
+            Num=Epoch+Base*(Epoch_big-1)
+            
+        writer.add_scalar("attacker/Adv", to_numpy(Adv).tolist(), Num)
+        writer.add_scalar("attacker/attacker_loss", to_numpy(new_losses).tolist(), Num)
+        writer.add_scalar("attacker/attacker_pure_loss", to_numpy(sum(pure_losses) / num_tasks).tolist(), Num)
         
 
-        return logs, Adv, optimizer
+        return logs, Adv, optimizer, grads

@@ -39,7 +39,7 @@ class Navigation2DEnv(gym.Env):
         return [seed]
 
     def sample_tasks(self, num_tasks):
-        goals = self.np_random.uniform(0.25, self.high, size=(num_tasks, 2))
+        goals = self.np_random.uniform(self.low, self.high, size=(num_tasks, 2))
         tasks = [{'goal': goal} for goal in goals]
         return tasks
 

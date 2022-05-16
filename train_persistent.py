@@ -1,3 +1,4 @@
+from datetime import datetime
 import gym
 import torch
 import json
@@ -19,8 +20,10 @@ from maml_rl.utils.helpers import get_policy_for_env, get_input_size
 from maml_rl.utils.reinforcement_learning import get_returns
 from maml_rl.utils import global_tensor_val
 
+from tensorboardX import SummaryWriter
+
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 
 def main(args):
@@ -33,13 +36,14 @@ def main(args):
         policy_filename = os.path.join(args.output_folder, 'policy.th')
         config_filename = os.path.join(args.output_folder, 'config.json')
         log_filename = os.path.join(args.output_folder, 'logs.txt')
+        summary_file_path = os.path.join(args.output_folder, 'tensorboard')
 
         log = {}
         logs = {}
         with open(config_filename, 'w') as f:
             config.update(vars(args))
             json.dump(config, f, indent=2)
-        
+    writer = SummaryWriter(summary_file_path + datetime.now().strftime("%y-%m-%d-%H-%M"))    
     
     if args.seed is not None:
         torch.manual_seed(args.seed)
@@ -64,6 +68,11 @@ def main(args):
     policy = get_policy_for_env(env,
                                 hidden_sizes=config['hidden-sizes'],
                                 nonlinearity=config['nonlinearity'])
+    if os.path.exists(policy_filename):
+        print("Load exist policy!")
+        with open(policy_filename, 'rb') as f:
+            state_dict = torch.load(f, map_location=torch.device(args.device))
+            policy.load_state_dict(state_dict)
     policy.share_memory()
 
     # Baseline
@@ -85,23 +94,27 @@ def main(args):
                            device=args.device)# Define MAML method
 
     epoch = 1.0
+    global_episode = 1
+    global_episode_val = 0
+    Adv_grads_before = 0
 
     stop_trigger = 0
+    writer.add_scalar("attacker/Adv", to_numpy(Adv).tolist(), 0)
 
     for batch in trange(config['whole-batch-number-one-step']):# progress bar with training process
-        Adv_lr = config['attacker-lr']
+        # Adv_lr = config['attacker-lr']
         # logs['epoch'] = epoch
         # logs['time'] = time.asctime( time.localtime(time.time()) )
         tasks = sampler.sample_tasks(num_tasks=config['meta-batch-size'])
         futures = sampler.sample_async(tasks,
                                     num_steps=config['num-steps'],
-                                    fast_lr=config['fast-lr'],
+                                    fast_lr=config['fast-lr']*Adv.item(),
                                     gamma=config['gamma'],
                                     gae_lambda=config['gae-lambda'],
                                     device=args.device)
     
 # -------------------------------------------------------------------------------------------------------------------------------------------------------
-        logs, _ = metalearner.step(*futures,
+        logs, global_episode, global_episode_val, _ = metalearner.step(*futures,
                                 max_kl=config['max-kl'],
                                 cg_iters=config['cg-iters'],
                                 cg_damping=config['cg-damping'],
@@ -109,7 +122,10 @@ def main(args):
                                 ls_backtrack_ratio=config['ls-backtrack-ratio'],
                                 Adv=Adv,
                                 Epoch=epoch,
-                                Outer_loop=config['outer_loop'])
+                                Outer_loop=config['outer_loop'],
+                                writer = writer,
+                                global_episode = global_episode,
+                                global_episode_val = global_episode_val)
         # Save policy
         if args.output_folder is not None:
             with open(policy_filename, 'wb') as f:
@@ -118,7 +134,7 @@ def main(args):
                 json.dump(logs, f, indent=2)
         
 # ---------------------------------------------------------------------------------------------------------------------------------------------
-        logs, Adv , optimizer = metalearner.step_attacker_with_opt(*futures,
+        logs, Adv, optimizer, Adv_grads = metalearner.step_attacker_with_opt(*futures,
                                 max_kl=config['max-kl'],
                                 cg_iters=config['cg-iters'],
                                 cg_damping=config['cg-damping'],
@@ -128,20 +144,31 @@ def main(args):
                                 Epoch=epoch,
                                 optimizer=optimizer,
                                 clip_value=config['clip_value'],
-                                Outer_loop=config['outer_loop'])
+                                Outer_loop=config['outer_loop'],
+                                writer=writer)
+    
+        
+        # Early stop
+        # Adv_distance = abs(logs['Adv_before']-logs['Adv_after'])/abs(logs['Adv_before'])
+        Adv_grads_after = Adv_grads.item()
+        Adv_distance = abs(Adv_grads_after + Adv_grads_before)
+        if(Adv_distance <= config['restricted-distance']):
+            stop_trigger+=1
+        else:
+            stop_trigger=0
+        Adv_grads_before = Adv_grads_after
+        
+        train_episodes, valid_episodes = sampler.sample_wait(futures)
+        writer.add_scalar("reward/sample_train", get_returns(train_episodes[0]).mean(), epoch)
+        writer.add_scalar("reward/sample_valid", get_returns(valid_episodes).mean(), epoch)
+        
+        logs['sample_train'] = get_returns(train_episodes[0]).mean().item()
+        logs['sample_valid'] = get_returns(valid_episodes).mean().item()
         
         if args.output_folder is not None:
             with open(log_filename, 'a') as f:
                 json.dump(logs, f, indent=2)
             f.close()
-        
-        # Early stop
-        Adv_distance = abs(logs['Adv_before']-logs['Adv_after'])/abs(logs['Adv_before'])
-        if(Adv_distance <= config['restricted-distance']):
-            stop_trigger+=1
-        else:
-            stop_trigger=0
-        train_episodes, valid_episodes = sampler.sample_wait(futures)
 
 
         # Early stop

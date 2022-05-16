@@ -77,17 +77,17 @@ whole-batch-number: 500
 attacker-lr: 0.01
 attacker-momentum: 0
 attacker-dampening: 0
-attacker-weight_decay: 1
+attacker-weight_decay: 0
 
 # Optimizer parameters for early stop.
-restricted-distance: 0.0001
-stop-threshold: 15
+restricted-distance: 0.00001
+stop-threshold: 5
 
 # Optimizer parameters for clip.
-clip_value: 30.0
+clip_value: 30
 
 # Attacker learning rate decay
-lr_decay: 50
+lr_decay: 100
 
 # Outer Loop setting
 outer_loop: false

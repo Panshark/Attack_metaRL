@@ -1,3 +1,4 @@
+from datetime import datetime
 import gym
 import torch
 import json
@@ -19,8 +20,10 @@ from maml_rl.utils.helpers import get_policy_for_env, get_input_size
 from maml_rl.utils.reinforcement_learning import get_returns
 from maml_rl.utils import global_tensor_val
 
+from tensorboardX import SummaryWriter
+
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 
 def main(args):
@@ -33,13 +36,14 @@ def main(args):
         policy_filename = os.path.join(args.output_folder, 'policy.th')
         config_filename = os.path.join(args.output_folder, 'config.json')
         log_filename = os.path.join(args.output_folder, 'logs.txt')
+        summary_file_path = os.path.join(args.output_folder, 'tensorboard')
 
         log = {}
         logs = {}
         with open(config_filename, 'w') as f:
             config.update(vars(args))
             json.dump(config, f, indent=2)
-        
+    writer = SummaryWriter(summary_file_path + datetime.now().strftime("%y-%m-%d-%H-%M"))        
     
     if args.seed is not None:
         torch.manual_seed(args.seed)
@@ -85,7 +89,10 @@ def main(args):
                            device=args.device)# Define MAML method
 
     epoch_big = 1.0
-
+    global_episode = 1
+    global_episode_val = 0
+    Adv_grads_before = 0
+    
     stop_trigger = 0
 
     for batch in trange(config['whole-batch-number']):# progress bar with training process
@@ -101,12 +108,12 @@ def main(args):
             tasks = sampler.sample_tasks(num_tasks=config['meta-batch-size'])
             futures = sampler.sample_async(tasks,
                                         num_steps=config['num-steps'],
-                                        fast_lr=config['fast-lr'],
+                                        fast_lr=config['fast-lr']*Adv.item(),
                                         gamma=config['gamma'],
                                         gae_lambda=config['gae-lambda'],
                                         device=args.device)
         
-            logs, _ = metalearner.step(*futures,
+            logs, global_episode, global_episode_val, _ = metalearner.step(*futures,
                                     max_kl=config['max-kl'],
                                     cg_iters=config['cg-iters'],
                                     cg_damping=config['cg-damping'],
@@ -115,57 +122,92 @@ def main(args):
                                     Adv=Adv,
                                     Epoch=epoch,
                                     Outer_loop=config['outer_loop'],
-                                    Epoch_big=epoch_big)
+                                    Epoch_big=epoch_big,
+                                    writer = writer,
+                                    global_episode = global_episode,
+                                    global_episode_val = global_episode_val,
+                                    Base = config['num-batches'])
+            
+                    
+            train_episodes, valid_episodes = sampler.sample_wait(futures)
+            writer.add_scalar("reward/sample_train", get_returns(train_episodes[0]).mean(), epoch+config['num-batches']*(epoch_big-1))
+            writer.add_scalar("reward/sample_valid", get_returns(valid_episodes).mean(), epoch+config['num-batches']*(epoch_big-1))
+            
+            logs['sample_train'] = get_returns(train_episodes[0]).mean().item()
+            logs['sample_valid'] = get_returns(valid_episodes).mean().item()
+            
             # Save policy
             if args.output_folder is not None:
                 with open(policy_filename, 'wb') as f:
                     torch.save(policy.state_dict(), f)
                 with open(log_filename, 'a') as f:
                     json.dump(logs, f, indent=2)
-                    
-# ------------------------------------------------------------------------------------------------------------------------------------
-            if (epoch == config['num-batches']):
-                epoch_adv = 1.0
-                for batch in trange(config['attacker-num-batches']):# progress bar with training process
-                    
-                    logs, Adv , optimizer = metalearner.step_attacker_with_opt(*futures,
-                                            max_kl=config['max-kl'],
-                                            cg_iters=config['cg-iters'],
-                                            cg_damping=config['cg-damping'],
-                                            ls_max_steps=config['ls-max-steps'],
-                                            ls_backtrack_ratio=config['ls-backtrack-ratio'],
-                                            Adv=Adv,
-                                            Epoch=epoch_adv,
-                                            optimizer=optimizer,
-                                            clip_value=config['clip_value'],
-                                            Outer_loop=config['outer_loop'],
-                                            Epoch_big=epoch_big)
-
-
-                    if args.output_folder is not None:
-                        with open(log_filename, 'a') as f:
-                            json.dump(logs, f, indent=2)
-                        f.close()
-
-                    # Early stop
-                    Adv_distance = abs(logs['Adv_before']-logs['Adv_after'])/abs(logs['Adv_before'])
-                    if(Adv_distance <= config['restricted-distance']):
-                        stop_trigger+=1
-                    else:
-                        stop_trigger=0
-                    epoch_adv += 1
-
-                    # Early stop
-                    if stop_trigger >= config['stop-threshold']:
-                        break
-                # lr decay
-                if(epoch_adv*epoch_big%config['lr_decay']==0):
-                    optimizer.param_groups[0]['lr']=config['attacker-lr']/((epoch_adv*epoch_big/config['lr_decay'])**0.5)
-# ------------------------------------------------------------------------------------------------------------------------------------
-
-            train_episodes, valid_episodes = sampler.sample_wait(futures)
-            
             epoch += 1
+                    
+# ------------------------------------------------------------------------------------------------------------------------------------
+
+        epoch_adv = 1.0
+        for batch in trange(config['attacker-num-batches']):# progress bar with training process
+            tasks = sampler.sample_tasks(num_tasks=config['meta-batch-size'])
+            futures = sampler.sample_async(tasks,
+                                num_steps=config['num-steps'],
+                                fast_lr=config['fast-lr']*Adv.item(),
+                                gamma=config['gamma'],
+                                gae_lambda=config['gae-lambda'],
+                                device=args.device)
+            logs, Adv , optimizer, Adv_grads = metalearner.step_attacker_with_opt(*futures,
+                                    max_kl=config['max-kl'],
+                                    cg_iters=config['cg-iters'],
+                                    cg_damping=config['cg-damping'],
+                                    ls_max_steps=config['ls-max-steps'],
+                                    ls_backtrack_ratio=config['ls-backtrack-ratio'],
+                                    Adv=Adv,
+                                    Epoch=epoch_adv,
+                                    optimizer=optimizer,
+                                    clip_value=config['clip_value'],
+                                    Outer_loop=config['outer_loop'],
+                                    Epoch_big=epoch_big,
+                                    writer=writer,
+                                    Base = config['attacker-num-batches'])
+            # Early stop
+            Adv_grads_after = Adv_grads.item()
+            Adv_distance = abs(Adv_grads_after + Adv_grads_before)
+            if(Adv_distance <= config['restricted-distance']):
+                stop_trigger+=1
+            else:
+                stop_trigger=0
+            Adv_grads_before = Adv_grads_after
+            
+            train_episodes, valid_episodes = sampler.sample_wait(futures)
+            writer.add_scalar("reward/Adv_sample_train", get_returns(train_episodes[0]).mean(), epoch_adv+config['num-batches']*(epoch_big-1))
+            writer.add_scalar("reward/Adv_sample_valid", get_returns(valid_episodes).mean(), epoch_adv+config['num-batches']*(epoch_big-1))
+            
+            logs['sample_train'] = get_returns(train_episodes[0]).mean().item()
+            logs['sample_valid'] = get_returns(valid_episodes).mean().item()
+            
+            if args.output_folder is not None:
+                with open(log_filename, 'a') as f:
+                    json.dump(logs, f, indent=2)
+                f.close()
+
+            # Early stop
+            # Adv_distance = abs(logs['Adv_before']-logs['Adv_after'])/abs(logs['Adv_before'])
+            # if(Adv_distance <= config['restricted-distance']):
+            #     stop_trigger+=1
+            # else:
+            #     stop_trigger=0
+            
+
+            # Early stop
+            if stop_trigger >= config['stop-threshold']:
+                break
+        # lr decay
+            if(epoch_adv*epoch_big%config['lr_decay']==0):
+                optimizer.param_groups[0]['lr']=config['attacker-lr']/((epoch_adv*epoch_big/config['lr_decay'])**0.5)
+            epoch_adv += 1
+# ------------------------------------------------------------------------------------------------------------------------------------
+            
+            
         epoch_big += 1
         # # Early stop
         # if stop_trigger >= config['stop-threshold']:
