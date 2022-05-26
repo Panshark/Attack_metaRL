@@ -18,7 +18,7 @@ from tensorboardX import SummaryWriter
 
 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
 def main(args):
     with open(args.config, 'r') as f:

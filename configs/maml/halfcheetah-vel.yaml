@@ -41,7 +41,7 @@ fast-lr: 0.1
 # Optimization
 # ------------
 # Number of outer-loop updates (ie. number of batches of tasks).
-num-batches: 500
+num-batches: 1000
 
 # Number of tasks in each batch of tasks.
 meta-batch-size: 40
@@ -65,7 +65,7 @@ ls-backtrack-ratio: 0.8
 
 #--------------------------------------------------------------------
 # Value of Adv in learner train
-Adv: 1.0
+Adv: 9.000
 
 # Number of attacker updates (ie. number of batches of tasks).
 attacker-num-batches: 1

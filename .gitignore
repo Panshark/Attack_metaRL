@@ -113,6 +113,12 @@ experiments4/
 experiments3/
 experiments2/
 experiments/
+train_copy.py
+halfcheetah-vel_gridsearch_2/
+halfcheetah-vel_gridsearch_1/
+halfcheetah-vel_gridsearch/
+2d_navigation_test/
+2d_navigation_-100/
 # Slurm
 *.out
 
@@ -124,6 +130,7 @@ experiments/
 #mojoco log file
 MUJOCO_LOG.TXT
 draw_2d.py
+train_gridsearch_cheetah.sh
 
 #video recording
 recording/

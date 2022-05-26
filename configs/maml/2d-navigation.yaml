@@ -66,19 +66,19 @@ ls-backtrack-ratio: 0.8
 Adv: 1.0
 
 # Number of attacker updates (ie. number of batches of tasks).
-attacker-num-batches: 2
+attacker-num-batches: 1
 
 # Number of whole-batch updates.
 whole-batch-number: 500
 
 # Optimizer parameters for each gradient step in the attacker adaptation.
-attacker-lr: 0.01
+attacker-lr: 0.5
 attacker-momentum: 0
 attacker-dampening: 0
 attacker-weight_decay: 0
 
 # Optimizer parameters for early stop.
-restricted-distance: 0.001
+restricted-distance: 0.0001
 stop-threshold: 5
 
 # Optimizer parameters for clip.
